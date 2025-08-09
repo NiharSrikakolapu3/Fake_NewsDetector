@@ -1,4 +1,11 @@
-pandas
-scikit-learn
 streamlit
-jupyter
+lime
+numpy
+pandas
+newsapi-python
+scikit-learn
+joblib
+plotly
+pillow
+matplotlib
+seaborn
