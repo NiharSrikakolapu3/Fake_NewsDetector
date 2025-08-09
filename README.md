@@ -9,6 +9,16 @@ This project is  an end-to-end Fake News Detection system focusing on political 
 - Collecting user feedback for future improvements
 - Visualizing model performance and data in interactive plots
 
+## Datasets
+This project uses the following datasets for training and evaluation:
+
+- **LIAR dataset:** A benchmark dataset for fake news detection focused on political statements.  
+  [LIAR Dataset info can be found at](https://www.cs.ucsb.edu/~william/data/liar_dataset.zip)
+
+- **Fake and Real News Dataset from Kaggle:** Contains labeled fake and real news articles, supplementing the training data.  
+  [Kaggle Dataset info can be found at ](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset)
+
+
 ## Features
 - **Two ML models:** Logistic Regression and Random Forest using pre-trained embeddings  
 - **Live updates:** Fetches current political headlines through NewsAPI  
