@@ -47,7 +47,8 @@ This project is a simple and effective Fake News Detection system focusing on po
 
 5. Run the preprocessing/model script (Must Run prior to starting the app):
     ```bash
-    python3 FakeNews.py
+    cd src
+    python FakeNews.py
     ```
 
 ## Usage

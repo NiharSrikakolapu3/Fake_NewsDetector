@@ -101,6 +101,8 @@ def load_liar_data():
 
 # The following functions were created for visualization purpouses so I want people to see the differences between the 2 models that I created
 def visualize_model_performance(y_test, y_pred, model_name, output_dir="metrics"):
+    # Create metrics directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
     # Confusion Matrix
     cm = confusion_matrix(y_test, y_pred)
     plt.figure(figsize=(5, 4))
