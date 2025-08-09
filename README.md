@@ -13,10 +13,10 @@ This project is  an end-to-end Fake News Detection system focusing on political 
 This project uses the following datasets for training and evaluation:
 
 - **LIAR dataset:** A benchmark dataset for fake news detection focused on political statements.  
-  [LIAR Dataset info can be found at](https://www.cs.ucsb.edu/~william/data/liar_dataset.zip)
+  [LIAR Dataset](https://www.cs.ucsb.edu/~william/data/liar_dataset.zip)
 
 - **Fake and Real News Dataset from Kaggle:** Contains labeled fake and real news articles, supplementing the training data.  
-  [Kaggle Dataset info can be found at ](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset)
+  [Kaggle Dataset](https://www.kaggle.com/datasets/clmentbisaillon/fake-and-real-news-dataset)
 
 
 ## Features
