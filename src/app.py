@@ -117,9 +117,9 @@ if "current_feedback" in st.session_state:
         st.session_state.feedback_list.append(st.session_state.current_feedback)
         st.success("✅ Feedback recorded in session.")
         del st.session_state.current_feedback  
-# --- Live Headline ---
+# This is the code that gets the live news
 st.markdown("---")
-st.markdown("### 🗞️ Analyze a Recent Political Headline")
+st.markdown("Analyze a Recent Political Headline")
 
 headlines_df = fetch_political_headlines()
 headlines = headlines_df["text"].tolist() if not headlines_df.empty else []
@@ -152,7 +152,7 @@ if headlines:
 if st.session_state.current_live_feedback:
     cf = st.session_state.current_live_feedback
 
-    st.markdown("#### 🧪 Prediction for Selected Headline")
+    st.markdown("Prediction for Selected Headline")
     st.markdown(f"**Model Used**: `{cf['model']}`")
     st.markdown(f"**Prediction**: {'🟥 Fake' if cf['prediction'] == 'Fake' else '🟩 Real'}")
     st.markdown(f"**Probability Real**: `{cf['confidence_real']:.3f}`")
@@ -183,7 +183,7 @@ else:
     if not headlines:
         st.warning("No political headlines found.")
 
-# --- Log Stored Feedback Button ---
+# Feedback store button
 st.markdown("---")
 st.markdown("Log Stored Feedback to File")
 
@@ -227,9 +227,9 @@ if st.button("Show 3D Plot of Training Data"):
     fig.update_layout(legend_title_text='Class')
     st.plotly_chart(fig, use_container_width=True)
 
-# --- Model Performance Visualizations ---
+# Loads what was previously stored in FakeNews.py so user can visualize the models
 st.markdown("---")
-st.markdown("### 📈 Model Performance Visualizations")
+st.markdown("Model Performance Visualizations")
 
 model_file_map = {
     "Logistic Regression": {

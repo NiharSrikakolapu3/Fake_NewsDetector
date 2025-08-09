@@ -37,16 +37,15 @@ This project is a simple and effective Fake News Detection system focusing on po
     pip install -r requirements.txt
     ```
 
-4. **Download GloVe embeddings** (these are large files and are NOT stored in the repo):  
+4. **Download GloVe embeddings** (these are large files):  
     ```bash
-    mkdir -p data
     cd data
     wget http://nlp.stanford.edu/data/glove.6B.zip
     unzip glove.6B.zip
     cd ..
     ```
 
-5. Run the preprocessing/model script (optional before using the app):
+5. Run the preprocessing/model script (Must Run prior to starting the app):
     ```bash
     python3 FakeNews.py
     ```
@@ -57,5 +56,5 @@ Start the app by running the following command:
 ```bash
 streamlit run app.py
 
-# Usually 
+Usually can be accessed on  http://localhost:8501 but can be different so check your terminal
 

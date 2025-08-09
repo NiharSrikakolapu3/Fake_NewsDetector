@@ -43,9 +43,7 @@ def load_glove_embeddings(glove_file_path):
         for line in f:
             # I want to seperate the line
             split_line = line.split()
-            # Store the first word of the line this will be the key
             word = split_line[0]
-            # everything after the first word will be be stored as embeddings 
             embedding = np.array(split_line[1:], dtype=np.float64)
             # Storing it as a key value pair
             glove_model[word] = embedding
@@ -66,7 +64,6 @@ def embed_text(text, embeddings_index, embedding_dim=100):
     return np.mean(valid_vectors, axis=0)
 
 # Main goal of these 2 functions is to load data from the liar dataset and kaggle dataset mainly used for training the models
-# Stack the dfs using pandas to create one df so its easier with text and label columns only because for me those are the only ones important
 def load_and_label_data(real_path, fake_path):
     try:
         real_df = pd.read_csv(real_path)
@@ -130,7 +127,7 @@ def visualize_model_performance(y_test, y_pred, model_name, output_dir="metrics"
     plt.savefig(f"{output_dir}/{model_name}_accuracy.png")
     plt.close()
 
-# The following functions were actually created to make the models which can later be interacted with when Im actually creating predictios
+# The following functions were created to train both models and be saved for later use
 def train_model(X, y, model_type='logistic'):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -173,7 +170,6 @@ def predict_news(text, model, embeddings_index, threshold=0.6):
     probabilities = model.predict_proba([embedded_vector])[0]
     fake_prob = probabilities[1]  # Probability that the news is fake
 
-    # Step 4: Compare with threshold to classify as Fake or Real
     if fake_prob > threshold:
         return "Fake"
     else:
@@ -200,7 +196,7 @@ def explain_with_lime(text, model, embeddings_index, num_features=10):
     )
     return explanation.as_list()
 
-# ----------- PCA + LDA 3D Embedding Export Function ----------- #
+# The following methods utilize pca and lda for a 3d view#
 def save_3d_embeddings_with_lda(X, y, output_path="3d_embeddings.npz"):
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
@@ -217,7 +213,7 @@ def save_3d_embeddings_with_lda(X, y, output_path="3d_embeddings.npz"):
     np.savez(output_path, X=X_3d, y=y)
     print(f"3D PCA+LDA embeddings saved to {output_path}")
 
-# ----------- Main Execution ----------- #
+# This is the main execution of the script
 if __name__ == "__main__":
     kaggle_real_path = "../data/trueOne.csv"
     kaggle_fake_path = "../data/fakeOne.csv"
