@@ -161,17 +161,12 @@ def load_models():
 
 # This is the main function to use preprocessing and predict the user input news
 def predict_news(text, model, embeddings_index, threshold=0.6):
-    # Step 1: Clean the input text (remove noise, lowercase, etc.)
     cleaned_text = clean_text(text)
-
-    # Step 2: Convert the cleaned text into a numerical vector using word embeddings
     embedded_vector = embed_text(cleaned_text, embeddings_index)
-
-    # Step 3: Get the predicted probabilities from the model
     # The model returns probabilities for both classes: [Real, Fake]
     probabilities = model.predict_proba([embedded_vector])[0]
-    fake_prob = probabilities[1]  # Probability that the news is fake
-
+    fake_prob = probabilities[1] 
+    # If bigger then treshold return it as a fake piece of news
     if fake_prob > threshold:
         return "Fake"
     else:
