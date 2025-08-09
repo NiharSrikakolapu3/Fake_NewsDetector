@@ -53,6 +53,9 @@ This project is a simple and effective Fake News Detection system focusing on po
 
 ## Usage
 
-Start the app by running:
+Start the app by running the following command:
 ```bash
 streamlit run app.py
+
+# Usually 
+
