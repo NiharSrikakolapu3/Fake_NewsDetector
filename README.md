@@ -1,7 +1,7 @@
 # Fake Political News Detection App
 
 ## Overview
-This project is a simple and effective Fake News Detection system focusing on political headlines and articles. It uses machine learning models—Logistic Regression and Random Forest—with GloVe word embeddings to classify news as **Real** or **Fake**. The app is user-friendly and comes with:
+This project is  an end-to-end Fake News Detection system focusing on political headlines and articles. It uses machine learning models—Logistic Regression and Random Forest—with GloVe word embeddings to classify news as **Real** or **Fake**. The app is user-friendly and comes with:
 
 - Analyzing user-input headlines or live political news
 - Showing predictions with confidence scores
