@@ -1,20 +1,18 @@
 import pandas as pd
 from newsapi import NewsApiClient
 
-# Your NewsAPI key
+# This is just my News API KEY
 API_KEY = "151c0e1278ca4a69ab5a7468727d6d39"
 
 # Initialize NewsAPI client
-newsapi = NewsApiClient(api_key=API_KEY)
+newsapi=NewsApiClient(api_key=API_KEY)
 
+# My Models were trained on lots of political news so I want to use the NewsAPi to establish a connection and get lots of political headlines
 def fetch_political_headlines(query="biden OR trump OR election OR congress OR senate OR government OR 'white house'", 
                               language="en", 
                               page_size=20, 
                               max_pages=1):
-    """
-    Fetches recent political news articles based on the query.
-    Returns a DataFrame with 'text' and 'source'.
-    """
+    
     all_articles = []
 
     try:
@@ -31,14 +29,14 @@ def fetch_political_headlines(query="biden OR trump OR election OR congress OR s
             if not articles:
                 break  # Stop if no articles are returned
 
-            for art in articles:
-                title = art.get("title", "")
-                description = art.get("description", "") or ""
+            for article in articles:
+                title = article.get("title", "")
+                description = article.get("description", "") or ""
                 text = f"{title} {description}".strip()
 
                 all_articles.append({
                     "text": text,
-                    "source": art.get("source", {}).get("name", "Unknown")
+                    "source": article.get("source", {}).get("name", "Unknown")
                 })
 
     except Exception as e:
