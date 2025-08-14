@@ -248,4 +248,3 @@ if __name__ == "__main__":
     sample = "Aliens have landed in New York, claims anonymous source"
     result = predict_news(sample, logistic_model, embeddings_index)
     print(f"Sample Prediction (Logistic): {result}")
-    explain_with_lime(sample, logistic_model, embeddings_index)
