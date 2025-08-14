@@ -26,64 +26,45 @@ This project uses the following datasets for training and evaluation:
 - **Feedback:** Logs user feedback to help improve the model over time  
 - **Visual insights:** PCA plots and accuracy/confusion matrix charts to understand model behavior  
 - **Easy to run:** Built with Streamlit for quick and straightforward web deployment
-Workflow / How It Works
+
+## Workflow / How It Works
 The app follows a structured workflow from raw data to predictions and explainability:
 
-Data Loading
+### 1. Data Loading
+- Loads and merges multiple datasets: **LIAR** (political statements) and **Kaggle** (fake/real news headlines)
+- Labels are standardized: **0 = Real, 1 = Fake**
 
-Loads and merges multiple datasets: LIAR (political statements) and Kaggle (fake/real news headlines).
+### 2. Preprocessing
+- Removes missing entries and cleans text by:
+  - Converting to lowercase
+  - Removing punctuation, digits, and extra whitespace
+- Preprocessed text is stored in a new `clean_text` column
 
-Labels are standardized: 0 = Real, 1 = Fake.
+### 3. Embedding with GloVe
+- Loads pre-trained **GloVe word embeddings** (`glove.6B.100d.txt`)
+- Converts each headline into an averaged vector representation of its words
+- Headlines without embeddings are represented as zero vectors
 
-Preprocessing
+### 4. 3D Visualization Preparation
+- Uses **PCA + LDA** to reduce embeddings to 3 dimensions
+- Saves the 3D vectors for visual exploration of data clusters in the app
 
-Removes missing entries and cleans text by:
+### 5. Model Training
+- Trains **Logistic Regression** and **Random Forest** models
+- Splits data into train/test sets (**80/20**) for evaluation
+- Saves trained models as `model_logistic.pkl` and `model_random_forest.pkl`
 
-Converting to lowercase
+### 6. Model Evaluation & Visualization
+- Generates **accuracy bar charts**, **confusion matrices**, and **classification reports**
+- Visualizations are saved to the `metrics/` folder for later reference
 
-Removing punctuation, digits, and extra whitespace
+### 7. Prediction & Explainability
+- User-input or live news headlines are cleaned and embedded
+- Models predict **Real vs Fake** with confidence scores
+- **LIME** provides word-level explanations to show which words influenced predictions
 
-Preprocessed text is stored in a new clean_text column.
-
-Embedding with GloVe
-
-Loads pre-trained GloVe word embeddings (glove.6B.100d.txt).
-
-Converts each headline into an averaged vector representation of its words.
-
-Headlines without embeddings are represented as zero vectors.
-
-3D Visualization Preparation
-
-Uses PCA + LDA to reduce embeddings to 3 dimensions.
-
-Saves the 3D vectors for visual exploration of data clusters in the app.
-
-Model Training
-
-Trains Logistic Regression and Random Forest models.
-
-Splits data into train/test sets (80/20) for evaluation.
-
-Saves trained models as model_logistic.pkl and model_random_forest.pkl.
-
-Model Evaluation & Visualization
-
-Generates accuracy bar charts, confusion matrices, and classification reports.
-
-Visualizations are saved to the metrics/ folder for later reference.
-
-Prediction & Explainability
-
-User-input or live news headlines are cleaned and embedded.
-
-Models predict Real vs Fake with confidence scores.
-
-LIME provides word-level explanations to show which words influenced predictions.
-
-Feedback Logging
-
-User feedback (Agree/Disagree) is logged for retraining and model improvement.
+### 8. Feedback Logging
+- User feedback (**Agree/Disagree**) is logged for retraining and model improvement
 
 ## Installation
 
