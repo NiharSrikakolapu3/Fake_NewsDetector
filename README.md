@@ -50,8 +50,7 @@ This project uses the following datasets for training and evaluation:
 4. **Download GloVe embeddings** (these are large files):  
     ```bash
     cd data
-    wget http://nlp.stanford.edu/data/glove.6B.zip
-    unzip glove.6B.zip
+    wget http://nlp.stanford.edu/data/glove.6B.100d.txt
     cd ..
     ```
 
