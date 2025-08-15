@@ -25,7 +25,7 @@ This project uses the following datasets for training and evaluation:
 The app follows a structured workflow from raw data to predictions and explainability:
 
 ### 1. Data Loading
-- Loads and merges multiple datasets: **LIAR** (political statements) and **Kaggle** (fake/real news headlines)
+- Loads and merges multiple datasets: **LIAR** and **Kaggle** 
 - Labels are standardized: **0 = Real, 1 = Fake**
 
 ### 2. Preprocessing
