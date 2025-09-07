@@ -60,7 +60,7 @@ The app follows a structured workflow from raw data to predictions and explainab
 ### 8. Feedback Logging
 - User feedback (**Agree/Disagree**) is logged for retraining and model improvement
 
-## Installation
+## Installation(For Users who prefer to run it themselves)
 
 1. Clone the repo:
     ```bash
@@ -82,7 +82,7 @@ The app follows a structured workflow from raw data to predictions and explainab
 
 4. **Download GloVe embeddings** (these are large files):  
     ```bash
-    cd data
+    cd src/data
     wget http://nlp.stanford.edu/data/glove.6B.zip
     unzip glove.6B.zip glove.6B.100d.txt
     cd ..
@@ -90,7 +90,7 @@ The app follows a structured workflow from raw data to predictions and explainab
 
 5. Run the preprocessing/model script (Must Run prior to starting the app):
     ```bash
-    cd src
+    cd ..
     python FakeNews.py
     ```
 
