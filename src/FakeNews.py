@@ -36,7 +36,6 @@ def download_glove_from_s3(bucket_name, s3_key, local_path):
                 "s3",
                 aws_access_key_id=aws_access_key,
                 aws_secret_access_key=aws_secret_key,
-                aws_session_token=aws_session_token
             )
         else:
             s3 = boto3.client("s3")
@@ -267,4 +266,5 @@ if __name__ == "__main__":
     sample = "Aliens have landed in New York, claims anonymous source"
     result = predict_news(sample, logistic_model, embeddings_index)
     print(f"Sample Prediction (Logistic): {result}")
+
 
