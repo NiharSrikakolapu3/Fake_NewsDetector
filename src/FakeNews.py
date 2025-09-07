@@ -19,7 +19,6 @@ import streamlit as st
 import boto3
 
 def download_glove_from_s3(bucket_name, s3_key, local_path):
-    """Download GloVe embeddings from S3 if not already cached locally"""
     if os.path.exists(local_path):
         print("GloVe embeddings already found locally.")
         return
@@ -268,3 +267,4 @@ if __name__ == "__main__":
     sample = "Aliens have landed in New York, claims anonymous source"
     result = predict_news(sample, logistic_model, embeddings_index)
     print(f"Sample Prediction (Logistic): {result}")
+
