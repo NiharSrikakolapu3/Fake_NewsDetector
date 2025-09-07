@@ -15,32 +15,44 @@ import joblib
 from lime.lime_text import LimeTextExplainer
 import matplotlib.pyplot as plt
 import seaborn as sns
+import streamlit as st
 import boto3
 
 def download_glove_from_s3(bucket_name, s3_key, local_path):
     """Download GloVe embeddings from S3 if not already cached locally"""
-    if not os.path.exists(local_path):
-        try:
-            print(f"Downloading {s3_key} from S3 bucket {bucket_name}...")
-            aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
-            aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-            if aws_access_key and aws_secret_key:
-                s3 = boto3.client(
-                    "s3",
-                    aws_access_key_id=aws_access_key,
-                    aws_secret_access_key=aws_secret_key
-                )
-            else:
-                s3 = boto3.client("s3")
-            os.makedirs(os.path.dirname(local_path), exist_ok=True)
-            s3.download_file(bucket_name, s3_key, local_path)
-            print("Download complete.")
-        except Exception as e:
-            print(f"Error downloading from S3: {e}")
-            raise
-    else:
+    if os.path.exists(local_path):
         print("GloVe embeddings already found locally.")
+        return
 
+    try:
+        print(f"Downloading {s3_key} from S3 bucket {bucket_name}...")
+
+        # Use Streamlit secrets for AWS credentials
+        aws_access_key = st.secrets.get("AWS_ACCESS_KEY_ID")
+        aws_secret_key = st.secrets.get("AWS_SECRET_ACCESS_KEY")
+        aws_session_token = st.secrets.get("AWS_SESSION_TOKEN")  # optional
+
+        if aws_access_key and aws_secret_key:
+            s3 = boto3.client(
+                "s3",
+                aws_access_key_id=aws_access_key,
+                aws_secret_access_key=aws_secret_key,
+                aws_session_token=aws_session_token
+            )
+        else:
+            # fallback to default credentials (may fail on Cloud)
+            s3 = boto3.client("s3")
+
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        s3.download_file(bucket_name, s3_key, local_path)
+        print("Download complete.")
+
+    except boto3.exceptions.NoCredentialsError:
+        print("Error: AWS credentials not found. Please add them to Streamlit secrets.")
+        raise
+    except Exception as e:
+        print(f"Error downloading from S3: {e}")
+        raise
 
 def clean_text(text):
     try:

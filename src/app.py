@@ -19,23 +19,28 @@ from FakeNews import (
     download_glove_from_s3  
 )
 
-FEEDBACK_LOG = "feedback_log.csv"  # now inside src/
+FEEDBACK_LOG = "feedback_log.csv"  
 
 @st.cache_resource
 def load_resources():
     bucket_name = "my-glove-embeddings-100d"
     s3_key = "glove.6B.100d.txt"
-    glove_path = "data/glove.6B.100d.txt"  # updated
+    glove_path = "data/glove.6B.100d.txt"  # local cache
 
-    # Ensure embeddings file is available
-    download_glove_from_s3(bucket_name, s3_key, glove_path)
+    # Try to download embeddings from S3
+    try:
+        download_glove_from_s3(bucket_name, s3_key, glove_path)
+    except Exception as e:
+        st.error(f"Could not download GloVe embeddings from S3: {e}")
+        st.stop()  # stop execution if embeddings not available
 
-    # Now load models and embeddings
-    logistic_model = load_model("models/model_logistic.pkl")  # updated
-    rf_model = load_model("models/model_random_forest.pkl")  # updated
+    # Load models and embeddings
+    logistic_model = load_model("models/model_logistic.pkl")
+    rf_model = load_model("models/model_random_forest.pkl")
     embeddings_index = load_glove_embeddings(glove_path)
 
     return {"Logistic Regression": logistic_model, "Random Forest": rf_model}, embeddings_index
+
 
 models, embeddings_index = load_resources()
 
