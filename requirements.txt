@@ -9,3 +9,4 @@ plotly
 pillow
 matplotlib
 seaborn
+boto3

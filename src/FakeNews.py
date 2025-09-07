@@ -15,6 +15,22 @@ import joblib
 from lime.lime_text import LimeTextExplainer
 import matplotlib.pyplot as plt
 import seaborn as sns
+import boto3
+
+def download_glove_from_s3(bucket_name, s3_key, local_path):
+    """Download GloVe embeddings from S3 if not already cached locally"""
+    if not os.path.exists(local_path):
+        try:
+            print(f"Downloading {s3_key} from S3 bucket {bucket_name}...")
+            s3 = boto3.client("s3")
+            os.makedirs(os.path.dirname(local_path), exist_ok=True)
+            s3.download_file(bucket_name, s3_key, local_path)
+            print("Download complete.")
+        except Exception as e:
+            print(f"Error downloading from S3: {e}")
+            raise
+    else:
+        print("GloVe embeddings already found locally.")
 
 # I created the following 2 functions to preprocess data
 def clean_text(text):
@@ -226,8 +242,12 @@ if __name__ == "__main__":
     print("Preprocessing...")
     combined = preprocess_data(combined)
 
-    print("Loading GloVe embeddings...")
-    glove_path = "../data/glove.6B.100d.txt"
+    print("Downloading GloVe embeddings from S3 if needed...")
+    bucket_name = "my-glove-embeddings-100d"       
+    s3_key = "glove.6B.100d.txt"                  # name in S3
+    glove_path = "../data/glove.6B.100d.txt"      # local cache
+
+    download_glove_from_s3(bucket_name, s3_key, glove_path)
     embeddings_index = load_glove_embeddings(glove_path)
 
     print("Creating document embeddings...")

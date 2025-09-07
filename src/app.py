@@ -15,16 +15,26 @@ from FakeNews import (
     embed_text,
     predict_news,
     predict_proba_lime,
-    explain_with_lime
+    explain_with_lime,
+    download_glove_from_s3  
 )
 
 FEEDBACK_LOG = "./feedback_log.csv"
 
 @st.cache_resource
 def load_resources():
+    bucket_name = "my-glove-embeddings-100d"   # your bucket
+    s3_key = "glove.6B.100d.txt"
+    glove_path = "../data/glove.6B.100d.txt"
+
+    # Ensure embeddings file is available
+    download_glove_from_s3(bucket_name, s3_key, glove_path)
+
+    # Now load models and embeddings
     logistic_model = load_model("model_logistic.pkl")
     rf_model = load_model("model_random_forest.pkl")
-    embeddings_index = load_glove_embeddings("../data/glove.6B.100d.txt")
+    embeddings_index = load_glove_embeddings(glove_path)
+
     return {"Logistic Regression": logistic_model, "Random Forest": rf_model}, embeddings_index
 
 models, embeddings_index = load_resources()
@@ -225,7 +235,7 @@ if st.button("Show 3D Plot of Training Data"):
             labels={"PC1": "PC 1", "PC2": "PC 2", "PC3": "PC 3"}
         )
     fig.update_layout(legend_title_text='Class')
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 # Loads what was previously stored in FakeNews.py so user can visualize the models
 st.markdown("---")
@@ -250,13 +260,13 @@ report_path = model_file_map[selected_model_name]["report"]
 
 try:
     acc_img = Image.open(acc_path)
-    st.image(acc_img, caption=f"{selected_model_name} Accuracy Bar Plot", use_container_width=True)
+    st.image(acc_img, caption=f"{selected_model_name} Accuracy Bar Plot", width='stretch')
 except:
     st.warning(f"Accuracy plot not found at {acc_path}")
 
 try:
     cm_img = Image.open(cm_path)
-    st.image(cm_img, caption=f"{selected_model_name} Confusion Matrix", use_container_width=True)
+    st.image(cm_img, caption=f"{selected_model_name} Confusion Matrix", width='stretch')
 except:
     st.warning(f"Confusion matrix image not found at {cm_path}")
 
