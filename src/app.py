@@ -23,24 +23,43 @@ FEEDBACK_LOG = "feedback_log.csv"
 
 @st.cache_resource
 def load_resources():
+    import os
+
+    # Base directory is the folder where this script (app.py) lives
+    BASE_DIR = os.path.dirname(__file__)
+
+    # Paths relative to src/
+    glove_path = os.path.join(BASE_DIR, "data", "glove.6B.100d.txt")
+    logistic_model_path = os.path.join(BASE_DIR, "models", "model_logistic.pkl")
+    rf_model_path = os.path.join(BASE_DIR, "models", "model_random_forest.pkl")
+
+    # Try to download GloVe embeddings from S3 if missing
     bucket_name = "my-glove-embeddings-100d"
     s3_key = "glove.6B.100d.txt"
-    glove_path = "data/glove.6B.100d.txt"  # local cache
+    if not os.path.exists(glove_path):
+        try:
+            download_glove_from_s3(bucket_name, s3_key, glove_path)
+        except Exception as e:
+            st.error(f"Could not download GloVe embeddings from S3: {e}")
+            st.stop()
 
-    # Try to download embeddings from S3
-    try:
-        download_glove_from_s3(bucket_name, s3_key, glove_path)
-    except Exception as e:
-        st.error(f"Could not download GloVe embeddings from S3: {e}")
-        st.stop()  # stop execution if embeddings not available
-
-    # Load models and embeddings
-    logistic_model = load_model("models/model_logistic.pkl")
-    rf_model = load_model("models/model_random_forest.pkl")
+    # Load embeddings
     embeddings_index = load_glove_embeddings(glove_path)
 
-    return {"Logistic Regression": logistic_model, "Random Forest": rf_model}, embeddings_index
+    # Load models
+    try:
+        logistic_model = load_model(logistic_model_path)
+    except FileNotFoundError:
+        st.error(f"Logistic Regression model not found at {logistic_model_path}")
+        st.stop()
 
+    try:
+        rf_model = load_model(rf_model_path)
+    except FileNotFoundError:
+        st.error(f"Random Forest model not found at {rf_model_path}")
+        st.stop()
+
+    return {"Logistic Regression": logistic_model, "Random Forest": rf_model}, embeddings_index
 
 models, embeddings_index = load_resources()
 
