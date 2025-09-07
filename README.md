@@ -1,7 +1,5 @@
-# Website Link:https://fakenewsdetector-rhk2lbkqronifc22fyhbky.streamlit.app/
-
 # Fake Political News Detection App
-
+Website Link:https://fakenewsdetector-rhk2lbkqronifc22fyhbky.streamlit.app/
 ## Overview
 This project is  an end-to-end Fake News Detection system focusing on political headlines and articles. It uses machine learning models—Logistic Regression and Random Forest—with GloVe word embeddings to classify news as **Real** or **Fake**. 
 
