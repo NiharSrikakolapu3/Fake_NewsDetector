@@ -1,11 +1,3 @@
 data/glove.6B*
 venv/
-# Ignore model files
-*.pkl
 
-# Ignore numpy embeddings
-*.npz
-
-# Ignore metric images and reports
-*.png
-*.csv
