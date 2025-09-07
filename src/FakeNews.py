@@ -27,7 +27,7 @@ def download_glove_from_s3(bucket_name, s3_key, local_path):
     try:
         print(f"Downloading {s3_key} from S3 bucket {bucket_name}...")
 
-        # Use Streamlit secrets for AWS credentials
+       
         aws_access_key = st.secrets.get("AWS_ACCESS_KEY_ID")
         aws_secret_key = st.secrets.get("AWS_SECRET_ACCESS_KEY")
         

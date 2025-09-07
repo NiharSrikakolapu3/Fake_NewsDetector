@@ -234,7 +234,7 @@ st.markdown(" Visualize How the Model Separates Real vs Fake News (3D PCA)")
 if st.button("Show 3D Plot of Training Data"):
     st.info("Loading precomputed 3D embeddings...")
     BASE_DIR = os.path.dirname(__file__)  # folder where app.py lives
-    embeddings_file = os.path.join(BASE_DIR, "embedding", "3d_embeddings.npz")
+    embeddings_file = os.path.join(BASE_DIR, "embeddings", "3d_embeddings.npz")
     data = np.load(embeddings_file)
     X_3d = data["X"]
     y = data["y"]
