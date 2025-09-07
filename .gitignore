@@ -1,3 +1,3 @@
-data/glove.6B*
+src/data/glove.6B*
 venv/
-
+data/*

@@ -19,20 +19,20 @@ from FakeNews import (
     download_glove_from_s3  
 )
 
-FEEDBACK_LOG = "./feedback_log.csv"
+FEEDBACK_LOG = "feedback_log.csv"  # now inside src/
 
 @st.cache_resource
 def load_resources():
-    bucket_name = "my-glove-embeddings-100d"   # your bucket
+    bucket_name = "my-glove-embeddings-100d"
     s3_key = "glove.6B.100d.txt"
-    glove_path = "../data/glove.6B.100d.txt"
+    glove_path = "data/glove.6B.100d.txt"  # updated
 
     # Ensure embeddings file is available
     download_glove_from_s3(bucket_name, s3_key, glove_path)
 
     # Now load models and embeddings
-    logistic_model = load_model("model_logistic.pkl")
-    rf_model = load_model("model_random_forest.pkl")
+    logistic_model = load_model("models/model_logistic.pkl")  # updated
+    rf_model = load_model("models/model_random_forest.pkl")  # updated
     embeddings_index = load_glove_embeddings(glove_path)
 
     return {"Logistic Regression": logistic_model, "Random Forest": rf_model}, embeddings_index
@@ -41,10 +41,7 @@ models, embeddings_index = load_resources()
 
 def log_feedback(row):
     df = pd.DataFrame([row])
-
-    # Write header only if the file is empty
     write_header = os.path.getsize(FEEDBACK_LOG) == 0
-
     try:
         df.to_csv(FEEDBACK_LOG, mode='a', header=write_header, index=False)
         st.success("Feedback saved!")
@@ -69,7 +66,7 @@ confidence_threshold = st.slider(
     help="Adjust the threshold above which news is classified as Fake."
 )
 
-#This method is created to analyze personal text, to see if your text can pass as a real or fake news
+# Analyze user text
 st.markdown("Analyze Your Own Text and Submit Feedback")
 
 with st.form("analysis_form"):
@@ -82,7 +79,6 @@ if analyze_btn and user_input.strip():
     prob = model.predict_proba([vector])[0]
     prediction = 'Fake' if prob[1] > confidence_threshold else 'Real'
 
-    # Store feedback but don't show message yet
     st.session_state.current_feedback = {
         "timestamp": datetime.now().isoformat(),
         "text": user_input,
@@ -91,10 +87,10 @@ if analyze_btn and user_input.strip():
         "confidence_real": prob[0],
         "confidence_fake": prob[1],
         "threshold": confidence_threshold,
-        "feedback": "agree",  # default- but will change because the user should get to pick what they think of the current prediction
+        "feedback": "agree",
     }
 
-# Show prediction and feedback submission UI only if analysis done
+# Show prediction and feedback UI
 if "current_feedback" in st.session_state:
     cf = st.session_state.current_feedback
 
@@ -111,7 +107,6 @@ if "current_feedback" in st.session_state:
         color = "red" if weight > 0 else "green"
         st.markdown(f"<span style='color:{color};'>{word}: {weight:.3f}</span>", unsafe_allow_html=True)
 
-    # Feedback radio and submit
     fb_choice = st.radio(
         "Do you agree with this prediction?",
         ["Agree", "Disagree"],
@@ -119,7 +114,6 @@ if "current_feedback" in st.session_state:
         key="feedback_radio_user"
     )
 
-    # Update session state feedback
     if fb_choice.lower() != cf["feedback"]:
         st.session_state.current_feedback["feedback"] = fb_choice.lower()
 
@@ -127,7 +121,8 @@ if "current_feedback" in st.session_state:
         st.session_state.feedback_list.append(st.session_state.current_feedback)
         st.success("✅ Feedback recorded in session.")
         del st.session_state.current_feedback  
-# This is the code that gets the live news
+
+# Live news headlines
 st.markdown("---")
 st.markdown("Analyze a Recent Political Headline")
 
@@ -193,7 +188,7 @@ else:
     if not headlines:
         st.warning("No political headlines found.")
 
-# Feedback store button
+# Log stored feedback
 st.markdown("---")
 st.markdown("Log Stored Feedback to File")
 
@@ -208,36 +203,36 @@ if st.session_state.feedback_list:
 else:
     st.info("No feedback stored in session. Use the Submit Feedback button above.")
 
-# Created this to visualize yhour graph in 3d pca 
+# 3D PCA visualization
 st.markdown("---")
 st.markdown(" Visualize How the Model Separates Real vs Fake News (3D PCA)")
 
 if st.button("Show 3D Plot of Training Data"):
     st.info("Loading precomputed 3D embeddings...")
-    embeddings_file = "3d_embeddings.npz"
+    embeddings_file = "embedding/3d_embeddings.npz"  # updated
     data = np.load(embeddings_file)
     X_3d = data["X"]
     y = data["y"]
 
     df_plot = pd.DataFrame({
-                "PC1": X_3d[:, 0],
-                "PC2": X_3d[:, 1],
-                "PC3": X_3d[:, 2],
-                "Label": y
-            })
+        "PC1": X_3d[:, 0],
+        "PC2": X_3d[:, 1],
+        "PC3": X_3d[:, 2],
+        "Label": y
+    })
     df_plot["LabelName"] = df_plot["Label"].map({0: "Real", 1: "Fake"})
 
     fig = px.scatter_3d(
-            df_plot, x="PC1", y="PC2", z="PC3",
-            color="LabelName",
-            color_discrete_map={"Real": "blue", "Fake": "red"},
-            title="3D PCA of News Embeddings",
-            labels={"PC1": "PC 1", "PC2": "PC 2", "PC3": "PC 3"}
-        )
+        df_plot, x="PC1", y="PC2", z="PC3",
+        color="LabelName",
+        color_discrete_map={"Real": "blue", "Fake": "red"},
+        title="3D PCA of News Embeddings",
+        labels={"PC1": "PC 1", "PC2": "PC 2", "PC3": "PC 3"}
+    )
     fig.update_layout(legend_title_text='Class')
     st.plotly_chart(fig, width='stretch')
 
-# Loads what was previously stored in FakeNews.py so user can visualize the models
+# Model performance visualizations
 st.markdown("---")
 st.markdown("Model Performance Visualizations")
 
@@ -275,11 +270,13 @@ try:
     st.dataframe(report_df)
 except:
     st.warning(f"Classification report CSV not found at {report_path}")
+
+# Retrain placeholder
 st.markdown("---")
 st.markdown(" Retrain Model")
 
 if st.button("Retrain Model"):
-   st.info(
-    "This is a placeholder for now, but the main idea is to use the feedback you provide—whether you agree or disagree with the predictions—"
-    "to retrain and improve the model, making it better tailored to your needs."
-)
+    st.info(
+        "This is a placeholder for now, but the main idea is to use the feedback you provide—whether you agree or disagree with the predictions—"
+        "to retrain and improve the model, making it better tailored to your needs."
+    )

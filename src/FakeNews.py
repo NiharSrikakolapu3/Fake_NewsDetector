@@ -22,7 +22,16 @@ def download_glove_from_s3(bucket_name, s3_key, local_path):
     if not os.path.exists(local_path):
         try:
             print(f"Downloading {s3_key} from S3 bucket {bucket_name}...")
-            s3 = boto3.client("s3")
+            aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
+            aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+            if aws_access_key and aws_secret_key:
+                s3 = boto3.client(
+                    "s3",
+                    aws_access_key_id=aws_access_key,
+                    aws_secret_access_key=aws_secret_key
+                )
+            else:
+                s3 = boto3.client("s3")
             os.makedirs(os.path.dirname(local_path), exist_ok=True)
             s3.download_file(bucket_name, s3_key, local_path)
             print("Download complete.")
@@ -32,9 +41,8 @@ def download_glove_from_s3(bucket_name, s3_key, local_path):
     else:
         print("GloVe embeddings already found locally.")
 
-# I created the following 2 functions to preprocess data
+
 def clean_text(text):
-    # Converted the string to lower case, got rid of punctuation, digits, and trailing white space
     try:
         text = str(text).lower()
         text = re.sub(f"[{re.escape(string.punctuation)}]", "", text)
@@ -44,42 +52,33 @@ def clean_text(text):
     except:
         return " "
 
+
 def preprocess_data(df):
-    # Uses panda to get rid of na rows in text, then creates a new collumn in the df called clean text which uses the above function,
-    # and then returns the new df for further functions
     df = df.dropna(subset=["text"])
     df["clean_text"] = df["text"].apply(clean_text)
     return df
 
-# Takes the glove file,reads it, splits the lines
+
 def load_glove_embeddings(glove_file_path):
-    # So when looking at the glove file it looks something like this- the 0.418 0.24968 -0.41242 0.1217 0.34527 ... 0.1238
     glove_model = {}
     with open(glove_file_path, 'r', encoding='utf-8') as f:
         for line in f:
-            # I want to seperate the line
             split_line = line.split()
             word = split_line[0]
             embedding = np.array(split_line[1:], dtype=np.float64)
-            # Storing it as a key value pair
             glove_model[word] = embedding
-        # Just printing how many total words i got from the glove file
     print(f"Total words loaded: {len(glove_model)}")
     return glove_model
 
-# The main goal of this is to compare your text, to the glove embedding and give you an average of the words in the sentence
+
 def embed_text(text, embeddings_index, embedding_dim=100):
     words = text.split()
-    valid_vectors = []
-    for word in words:
-        if word in embeddings_index:
-            valid_vectors.append(embeddings_index[word])
+    valid_vectors = [embeddings_index[word] for word in words if word in embeddings_index]
     if not valid_vectors:
-        # Returns a vector of 0's if it isnt found
         return np.zeros(embedding_dim)
     return np.mean(valid_vectors, axis=0)
 
-# Main goal of these 2 functions is to load data from the liar dataset and kaggle dataset mainly used for training the models
+
 def load_and_label_data(real_path, fake_path):
     try:
         real_df = pd.read_csv(real_path)
@@ -93,15 +92,15 @@ def load_and_label_data(real_path, fake_path):
     fake_df["label"] = 1
     return pd.concat([real_df[["text", "label"]], fake_df[["text", "label"]]], ignore_index=True)
 
+
 def load_liar_data():
-    liar_files = ['../data/train.tsv', '../data/valid.tsv', '../data/test.tsv']
+    liar_files = ['data/train.tsv', 'data/valid.tsv', 'data/test.tsv']  # updated
     liar_data = []
 
     for path in liar_files:
         if not os.path.exists(path):
             print(f"File not found: {path}")
             continue
-
         try:
             df = pd.read_csv(path, sep='\t', header=None)
             if len(df.columns) > 2:
@@ -115,11 +114,9 @@ def load_liar_data():
 
     return pd.concat(liar_data, ignore_index=True) if liar_data else pd.DataFrame(columns=["text", "label"])
 
-# The following functions were created for visualization purpouses so I want people to see the differences between the 2 models that I created
-def visualize_model_performance(y_test, y_pred, model_name, output_dir="metrics"):
-    # Create metrics directory if it doesn't exist
+
+def visualize_model_performance(y_test, y_pred, model_name, output_dir="metrics"):  # updated
     os.makedirs(output_dir, exist_ok=True)
-    # Confusion Matrix
     cm = confusion_matrix(y_test, y_pred)
     plt.figure(figsize=(5, 4))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=["Real", "Fake"], yticklabels=["Real", "Fake"])
@@ -130,11 +127,9 @@ def visualize_model_performance(y_test, y_pred, model_name, output_dir="metrics"
     plt.savefig(f"{output_dir}/{model_name}_confusion_matrix.png")
     plt.close()
 
-    # Classification Report CSV
     report = classification_report(y_test, y_pred, target_names=["Real", "Fake"], output_dict=True)
     pd.DataFrame(report).transpose().to_csv(f"{output_dir}/{model_name}_classification_report.csv")
 
-    # Accuracy Bar Plot
     acc = accuracy_score(y_test, y_pred)
     plt.figure(figsize=(4, 3))
     plt.bar([model_name], [acc], color='green')
@@ -145,7 +140,7 @@ def visualize_model_performance(y_test, y_pred, model_name, output_dir="metrics"
     plt.savefig(f"{output_dir}/{model_name}_accuracy.png")
     plt.close()
 
-# The following functions were created to train both models and be saved for later use
+
 def train_model(X, y, model_type='logistic'):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -158,38 +153,31 @@ def train_model(X, y, model_type='logistic'):
 
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-
     visualize_model_performance(y_test, y_pred, model_type)
-
     return model
+
 
 def save_model(model, model_path):
     joblib.dump(model, model_path)
 
+
 def load_model(model_path):
     return joblib.load(model_path)
 
+
 def load_models():
-    logistic_model = load_model("model_logistic.pkl")
-    rf_model = load_model("model_random_forest.pkl")
+    logistic_model = load_model("models/model_logistic.pkl")  # updated
+    rf_model = load_model("models/model_random_forest.pkl")  # updated
     return logistic_model, rf_model
 
 
-# This is the main function to use preprocessing and predict the user input news
 def predict_news(text, model, embeddings_index, threshold=0.6):
     cleaned_text = clean_text(text)
     embedded_vector = embed_text(cleaned_text, embeddings_index)
-    # The model returns probabilities for both classes: [Real, Fake]
     probabilities = model.predict_proba([embedded_vector])[0]
-    fake_prob = probabilities[1] 
-    # If bigger then treshold return it as a fake piece of news
-    if fake_prob > threshold:
-        return "Fake"
-    else:
-        return "Real"
+    return "Fake" if probabilities[1] > threshold else "Real"
 
 
-# Using lime to figure out how words influenced my model
 def predict_proba_lime(texts, model, embeddings_index):
     probs = []
     for txt in texts:
@@ -198,6 +186,7 @@ def predict_proba_lime(texts, model, embeddings_index):
         prob = model.predict_proba([vector])[0]
         probs.append(prob)
     return np.array(probs)
+
 
 def explain_with_lime(text, model, embeddings_index, num_features=10):
     class_names = ['Real', 'Fake']
@@ -209,8 +198,8 @@ def explain_with_lime(text, model, embeddings_index, num_features=10):
     )
     return explanation.as_list()
 
-# The following methods utilize pca and lda for a 3d view#
-def save_3d_embeddings_with_lda(X, y, output_path="3d_embeddings.npz"):
+
+def save_3d_embeddings_with_lda(X, y, output_path="embeddings/3d_embeddings.npz"):  # updated
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
 
@@ -226,10 +215,10 @@ def save_3d_embeddings_with_lda(X, y, output_path="3d_embeddings.npz"):
     np.savez(output_path, X=X_3d, y=y)
     print(f"3D PCA+LDA embeddings saved to {output_path}")
 
-# This is the main execution of the script
+
 if __name__ == "__main__":
-    kaggle_real_path = "../data/trueOne.csv"
-    kaggle_fake_path = "../data/fakeOne.csv"
+    kaggle_real_path = "data/trueOne.csv"  # updated
+    kaggle_fake_path = "data/fakeOne.csv"  # updated
 
     print("Loading datasets...")
     kaggle_data = load_and_label_data(kaggle_real_path, kaggle_fake_path)
@@ -243,9 +232,9 @@ if __name__ == "__main__":
     combined = preprocess_data(combined)
 
     print("Downloading GloVe embeddings from S3 if needed...")
-    bucket_name = "my-glove-embeddings-100d"       
-    s3_key = "glove.6B.100d.txt"                  # name in S3
-    glove_path = "../data/glove.6B.100d.txt"      # local cache
+    bucket_name = "my-glove-embeddings-100d"
+    s3_key = "glove.6B.100d.txt"
+    glove_path = "data/glove.6B.100d.txt"  # updated
 
     download_glove_from_s3(bucket_name, s3_key, glove_path)
     embeddings_index = load_glove_embeddings(glove_path)
@@ -258,11 +247,11 @@ if __name__ == "__main__":
 
     print("\nTraining Logistic Regression Model...")
     logistic_model = train_model(X, y, model_type='logistic')
-    save_model(logistic_model, "model_logistic.pkl")
+    save_model(logistic_model, "models/model_logistic.pkl")  # updated
 
     print("\nTraining Random Forest Model...")
     rf_model = train_model(X, y, model_type='random_forest')
-    save_model(rf_model, "model_random_forest.pkl")
+    save_model(rf_model, "models/model_random_forest.pkl")  # updated
 
     print("\nRunning prediction and LIME explanation sample (Logistic Regression):")
     sample = "Aliens have landed in New York, claims anonymous source"
