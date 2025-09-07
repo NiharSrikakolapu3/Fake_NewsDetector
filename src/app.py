@@ -23,7 +23,7 @@ FEEDBACK_LOG = "feedback_log.csv"
 
 @st.cache_resource
 def load_resources():
-    import os
+    
 
     # Base directory is the folder where this script (app.py) lives
     BASE_DIR = os.path.dirname(__file__)
@@ -233,7 +233,8 @@ st.markdown(" Visualize How the Model Separates Real vs Fake News (3D PCA)")
 
 if st.button("Show 3D Plot of Training Data"):
     st.info("Loading precomputed 3D embeddings...")
-    embeddings_file = "embedding/3d_embeddings.npz"  # updated
+    BASE_DIR = os.path.dirname(__file__)  # folder where app.py lives
+    embeddings_file = os.path.join(BASE_DIR, "embedding", "3d_embeddings.npz")
     data = np.load(embeddings_file)
     X_3d = data["X"]
     y = data["y"]
@@ -260,16 +261,18 @@ if st.button("Show 3D Plot of Training Data"):
 st.markdown("---")
 st.markdown("Model Performance Visualizations")
 
+BASE_DIR = os.path.dirname(__file__) 
+
 model_file_map = {
     "Logistic Regression": {
-        "acc": "metrics/logistic_accuracy.png",
-        "cm": "metrics/logistic_confusion_matrix.png",
-        "report": "metrics/logistic_classification_report.csv",
+        "acc": os.path.join(BASE_DIR, "metrics", "logistic_accuracy.png"),
+        "cm": os.path.join(BASE_DIR, "metrics", "logistic_confusion_matrix.png"),
+        "report": os.path.join(BASE_DIR, "metrics", "logistic_classification_report.csv"),
     },
     "Random Forest": {
-        "acc": "metrics/random_forest_accuracy.png",
-        "cm": "metrics/random_forest_confusion_matrix.png",
-        "report": "metrics/random_forest_classification_report.csv",
+        "acc": os.path.join(BASE_DIR, "metrics", "random_forest_accuracy.png"),
+        "cm": os.path.join(BASE_DIR, "metrics", "random_forest_confusion_matrix.png"),
+        "report": os.path.join(BASE_DIR, "metrics", "random_forest_classification_report.csv"),
     }
 }
 

@@ -30,7 +30,7 @@ def download_glove_from_s3(bucket_name, s3_key, local_path):
         # Use Streamlit secrets for AWS credentials
         aws_access_key = st.secrets.get("AWS_ACCESS_KEY_ID")
         aws_secret_key = st.secrets.get("AWS_SECRET_ACCESS_KEY")
-        aws_session_token = st.secrets.get("AWS_SESSION_TOKEN")  # optional
+        
 
         if aws_access_key and aws_secret_key:
             s3 = boto3.client(
@@ -40,7 +40,6 @@ def download_glove_from_s3(bucket_name, s3_key, local_path):
                 aws_session_token=aws_session_token
             )
         else:
-            # fallback to default credentials (may fail on Cloud)
             s3 = boto3.client("s3")
 
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
